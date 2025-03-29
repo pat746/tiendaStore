@@ -1,5 +1,6 @@
 package com.example.storechincha;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +22,7 @@ import org.json.JSONObject;
 public class Registrarse extends AppCompatActivity {
 
     private EditText etNomUsuario, etNombre, etApellidoP, etApellidoM, etEmail, etContrasena, etTelefono;
-    private Button btnRegistrar;
+    private Button btnRegistrar,btnCancelar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +38,21 @@ public class Registrarse extends AppCompatActivity {
         etContrasena = findViewById(R.id.etContrasena);
         etTelefono = findViewById(R.id.etTelefono);
         btnRegistrar = findViewById(R.id.btnRegistrar);
+        btnCancelar= findViewById(R.id.btnCancelar);
 
         // Configurar el botón de registro
         btnRegistrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 registrarUsuario();
+            }
+        });
+        btnCancelar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Registrarse.this, Login.class);
+                startActivity(intent);
+                finish(); // Opcional: Finaliza la actividad actual
             }
         });
     }
