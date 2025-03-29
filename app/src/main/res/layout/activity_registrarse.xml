@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="30dp"
+    android:gravity="center"
+    android:background="@drawable/fondo"
+    tools:context=".Registrarse">
+
+    <TextView
+        android:text="Crear Cuenta"
+        android:gravity="center"
+        android:layout_marginTop="60dp"
+        android:paddingTop="20dp"
+        android:textSize="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- Nombre de Usuario -->
+    <EditText
+        android:id="@+id/etNomUsuario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre de Usuario"
+        android:inputType="textPersonName"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Nombre -->
+    <EditText
+        android:id="@+id/etNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nombre"
+        android:inputType="textPersonName"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Apellido Paterno -->
+    <EditText
+        android:id="@+id/etApellidoP"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Apellido Paterno"
+        android:inputType="textPersonName"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Apellido Materno -->
+    <EditText
+        android:id="@+id/etApellidoM"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Apellido Materno"
+        android:inputType="textPersonName"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Correo electrónico -->
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Correo Electrónico"
+        android:inputType="textEmailAddress"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Contraseña -->
+    <EditText
+        android:id="@+id/etContrasena"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Contraseña"
+        android:inputType="textPassword"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Teléfono -->
+    <EditText
+        android:id="@+id/etTelefono"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Teléfono"
+        android:inputType="phone"
+        android:layout_marginTop="10dp"/>
+
+    <!-- Botón de Registro -->
+    <Button
+        android:id="@+id/btnRegistrar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Registrar"
+        android:backgroundTint="#1C85A6"
+        android:layout_marginTop="5dp"/>
+    <Button
+        android:id="@+id/btnCancelar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancelar"
+        android:backgroundTint="#EF4242"
+        android:layout_marginTop="5dp"/>
+
+</LinearLayout>

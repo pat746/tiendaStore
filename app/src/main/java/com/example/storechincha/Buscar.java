@@ -5,16 +5,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -22,156 +21,197 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Buscar extends AppCompatActivity {
-    private final String URLWS = "http://192.168.1.32/wstienda/app/services/service-productos.php";
-    RequestQueue requestQueue;
-    EditText edtTalla, edtPrecio,edtIDPrenda;
-    Spinner spinnerTipo,spinnerGenero;
-    Button btnActualizarPrenda,btnEliminarPrenda, btnBuscarPrenda;
+    private static final String URLWS = "http://192.168.1.18/wstienda/app/services/service-productos.php";
+    private RequestQueue requestQueue;
+
+    private EditText edtTalla, edtPrecio, edtIDPrenda;
+    private Spinner spinnerTipo, spinnerGenero;
+    private Button btnActualizarPrenda, btnEliminarPrenda, btnBuscarPrenda;
+
+    private List<String> tiposList = new ArrayList<>();
+    private List<String> generosList = new ArrayList<>();
+    private Map<String, String> generoMap = new HashMap<>();
+    private Map<String, String> generoMapReverse = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_buscar);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-         loadUI();
-         btnBuscarPrenda.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
-                 buscarPrenda();
-             }
-         });
-         btnEliminarPrenda.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View v) {
-                 confirmarEliminacion();
-             }
-         });
 
+        loadUI();
+        cargarSpinners();
 
+        requestQueue = Volley.newRequestQueue(this);
+
+        btnBuscarPrenda.setOnClickListener(v -> buscarPrenda());
+        btnEliminarPrenda.setOnClickListener(v -> confirmarEliminacion());
+        btnActualizarPrenda.setOnClickListener(v -> actualizarPrenda());
+    }
+
+    private void cargarSpinners() {
+        tiposList.add("Falda");
+        tiposList.add("Camisa");
+        tiposList.add("Pantalon");
+        tiposList.add("Polo");
+        tiposList.add("Short");
+
+        generosList.add("Masculino");
+        generosList.add("Femenino");
+        generosList.add("Unisex");
+
+        generoMap.put("M", "Masculino");
+        generoMap.put("F", "Femenino");
+        generoMap.put("U", "Unisex");
+
+        for (Map.Entry<String, String> entry : generoMap.entrySet()) {
+            generoMapReverse.put(entry.getValue(), entry.getKey());
+        }
+
+        spinnerTipo.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, tiposList));
+        spinnerGenero.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, generosList));
     }
 
     private void buscarPrenda() {
-        //1 canal de comunicacion (app<>ws)
-        requestQueue = Volley.newRequestQueue(this);
-        //String URLPARAMS = URLWS + "?q=findByI$id="+edtIDPrenda.getText().toString().trim();
-        //estructura la cadena de WS con key value
-        String URLparams= Uri.parse(URLWS)
-                .buildUpon()
-                .appendQueryParameter("q","findById")
-                .appendQueryParameter("id",edtIDPrenda.getText().toString())
-                .build()
-                .toString();
-        //solicitud y el valor esperado (retorno)
+        String idPrenda = edtIDPrenda.getText().toString().trim();
+        if (idPrenda.isEmpty()) {
+            showToast("Ingrese un ID de prenda");
+            return;
+        }
+
+        String URLparams = URLWS + "?q=findById&id=" + idPrenda;
+
         JsonArrayRequest jsonRequest = new JsonArrayRequest(
                 Request.Method.GET,
                 URLparams,
                 null,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        //Log.d("Respuesta:",response.toString());
-                        if(response.length()==0){
-                            resetUI();
-                            showToast("no existe el producto");
-                            edtIDPrenda.requestFocus();
-                        }else{
-                            try{
-                                JSONObject jsonObject = response.getJSONObject(0);
+                response -> {
+                    if (response.length() == 0) {
+                        resetUI();
+                        showToast("No existe el producto");
+                    } else {
+                        try {
+                            JSONObject jsonObject = response.getJSONObject(0);
+                            edtTalla.setText(jsonObject.optString("talla", ""));
+                            edtPrecio.setText(jsonObject.optString("precio", ""));
 
-                                edtTalla.setText(jsonObject.getString("talla"));
-                                edtPrecio.setText(jsonObject.getString("precio"));
-                                spinnerTipo.setSelection(Integer.parseInt(jsonObject.getString("tipo")));
-                                spinnerGenero.setSelection(Integer.parseInt(jsonObject.getString("genero")));
+                            int tipoIndex = tiposList.indexOf(jsonObject.optString("tipo", ""));
+                            int generoIndex = generosList.indexOf(generoMap.get(jsonObject.optString("genero", "")));
 
-
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            if (tipoIndex >= 0) spinnerTipo.setSelection(tipoIndex);
+                            if (generoIndex >= 0) spinnerGenero.setSelection(generoIndex);
+                        } catch (JSONException e) {
+                            showToast("Error al obtener los datos");
                         }
-
-
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                }
+                error -> showToast("Error en la conexión")
         );
-    }
 
-    private void showToast(String message) {
-    }
-
-    private void resetUI() {
-
-    }
-
-    private void eliminarPrenda(){
-        requestQueue = Volley.newRequestQueue(this);
-        String URLDELETE= URLWS+"/"+edtIDPrenda.getText().toString().trim();
-        Log.d("URL",URLDELETE);
-        JsonObjectRequest jsonRequest = new JsonObjectRequest(
-                Request.Method.DELETE,
-                URLDELETE,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.d("Recibido", response.toString());
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("ErrorWService", error.toString());
-                    }
-                }
-        );
         requestQueue.add(jsonRequest);
     }
 
     private void confirmarEliminacion() {
-        AlertDialog.Builder dialogo = new AlertDialog.Builder(this);
+        new AlertDialog.Builder(this)
+                .setTitle("Confirmación")
+                .setMessage("¿Seguro de eliminar?")
+                .setNegativeButton("No", null)
+                .setPositiveButton("Sí", (dialog, which) -> eliminarPrenda())
+                .show();
+    }
 
-        dialogo.setTitle("storeChincha");
-        dialogo.setMessage("¿Seguro de eliminar?");
-        dialogo.setCancelable(false);
+    private void eliminarPrenda() {
+        String idPrenda = edtIDPrenda.getText().toString().trim();
+        if (idPrenda.isEmpty()) {
+            showToast("Ingrese un ID de prenda");
+            return;
+        }
 
-        dialogo.setNegativeButton("No", null);
-        dialogo.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                eliminarPrenda();
-            }
-        });
+        String URLDELETE = URLWS + "?id=" + idPrenda;
 
-        dialogo.create().show();
+        StringRequest deleteRequest = new StringRequest(
+                Request.Method.DELETE,
+                URLDELETE,
+                response -> {
+                    resetUI();
+                    showToast("Prenda eliminada correctamente");
+                },
+                error -> showToast("Error al eliminar la prenda")
+        );
+
+        requestQueue.add(deleteRequest);
+    }
+
+
+    private void actualizarPrenda() {
+        String idPrenda = edtIDPrenda.getText().toString().trim();
+        String talla = edtTalla.getText().toString().trim();
+        String precio = edtPrecio.getText().toString().trim();
+        String tipo = spinnerTipo.getSelectedItem().toString();
+        String genero = generoMapReverse.get(spinnerGenero.getSelectedItem().toString());
+
+        if (idPrenda.isEmpty() || talla.isEmpty() || precio.isEmpty() || genero == null) {
+            showToast("Complete todos los campos");
+            return;
+        }
+
+        String urlUpdate = URLWS;
+        JSONObject jsonBody = new JSONObject();
+        try {
+            jsonBody.put("id", idPrenda);
+            jsonBody.put("tipo", tipo);
+            jsonBody.put("genero", genero);
+            jsonBody.put("talla", talla);
+            jsonBody.put("precio", precio);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest putRequest = new JsonObjectRequest(
+                Request.Method.PUT,
+                urlUpdate,
+                jsonBody,
+                response -> showToast("Prenda actualizada correctamente"),
+                error -> showToast("Error al actualizar la prenda")
+        );
+
+        requestQueue.add(putRequest);
+    }
+
+
+    private void showToast(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void resetUI() {
+        edtIDPrenda.setText(null);
+        edtPrecio.setText(null);
+        edtTalla.setText(null);
+        spinnerTipo.setSelection(0);
+        spinnerGenero.setSelection(0);
     }
 
     private void loadUI() {
-        edtIDPrenda=findViewById(R.id.edtIDPrenda);
-        spinnerTipo=findViewById(R.id.spinnerTipo);
-        spinnerGenero=findViewById(R.id.spinnerGenero);
-        edtTalla=findViewById(R.id.edtTalla);
-        edtPrecio=findViewById(R.id.edtPrecio);
-        btnEliminarPrenda=findViewById(R.id.btnEliminarPrenda);
-        btnActualizarPrenda=findViewById(R.id.btnActualizarPrenda);
+        edtIDPrenda = findViewById(R.id.edtIDPrenda);
+        spinnerTipo = findViewById(R.id.spinnerTipo);
+        spinnerGenero = findViewById(R.id.spinnerGenero);
+        edtTalla = findViewById(R.id.edtTalla);
+        edtPrecio = findViewById(R.id.edtPrecio);
+        btnEliminarPrenda = findViewById(R.id.btnEliminarPrenda);
+        btnActualizarPrenda = findViewById(R.id.btnActualizarPrenda);
+        btnBuscarPrenda = findViewById(R.id.btnBuscarPrenda);
     }
 }

@@ -7,10 +7,13 @@
     android:layout_gravity="center_vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="25dp"
+    android:padding="30dp"
+    android:background="@drawable/lista"
     tools:context=".Listar">
       <TextView
           android:id="@+id/txTitulo"
+          android:padding="25dp"
+          android:layout_marginTop="30dp"
           android:text="Listar"
           android:textSize="25dp"
           android:gravity="center"

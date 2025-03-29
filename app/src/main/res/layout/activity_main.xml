@@ -8,23 +8,29 @@
     android:gravity="center"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/fondo2"
     tools:context=".MainActivity">
 
     <Button
         android:id="@+id/btnActRegistrar"
         android:text="Registrar"
         android:layout_width="255dp"
+        android:backgroundTint="#1C85A6"
         android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/btnActListar"
         android:text="Listar"
+        android:textColorHint="@color/white"
+        android:backgroundTint="#EF4242"
+
         android:layout_width="255dp"
         android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/btnActBuscar"
         android:text="Buscar"
+        android:backgroundTint="#405BF8"
         android:layout_width="255dp"
         android:layout_height="wrap_content" />
 

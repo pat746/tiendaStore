@@ -27,7 +27,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONObject;
 
 public class Registrar extends AppCompatActivity {
-    private final String URLWS = "http://192.168.1.32/wstienda/app/services/service-productos.php";
+    private final String URLWS = "http://192.168.1.18/wstienda/app/services/service-productos.php";
     RequestQueue requestQueue;
 
     EditText edtTalla, edtPrecio;

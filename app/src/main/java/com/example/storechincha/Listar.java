@@ -25,7 +25,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class Listar extends AppCompatActivity {
-    private final String URLWS = "http://192.168.1.32/wstienda/app/services/service-productos.php";
+    private final String URLWS = "http://192.168.1.18/wstienda/app/services/service-productos.php";
     RequestQueue requestQueue;
     ListView lsRopa;
 
